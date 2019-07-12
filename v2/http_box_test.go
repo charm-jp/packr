@@ -24,9 +24,15 @@ var httpBox = func() packd.Box {
 		panic(err)
 	}
 
+	helloDeep, err := resolver.HexGzipString("<h1>Index deep!</h1>")
+	if err != nil {
+		panic(err)
+	}
+
 	hg, err := resolver.NewHexGzip(map[string]string{
-		"index.html":	ind,
-		"hello.txt":	hello,
+		"index.html":         ind,
+		"hello.txt":          hello,
+		"foo/bar/index.html": helloDeep,
 	})
 	if err != nil {
 		panic(err)
@@ -106,6 +112,24 @@ func Test_HTTPBox_Handles_IndexHTML(t *testing.T) {
 	r.Equal(200, res.Code)
 
 	r.Equal("<h1>Index!</h1>", strings.TrimSpace(res.Body.String()))
+}
+
+func Test_HTTPBox_Handles_DeepIndexHTML(t *testing.T) {
+	r := require.New(t)
+
+	mux := http.NewServeMux()
+	mux.Handle("/", http.FileServer(httpBox))
+
+	req, err := http.NewRequest("GET", "/foo/bar", nil)
+	r.NoError(err)
+
+	res := httptest.NewRecorder()
+
+	mux.ServeHTTP(res, req)
+
+	r.Equal(200, res.Code)
+
+	r.Equal("<h1>Index deep!</h1>", strings.TrimSpace(res.Body.String()))
 }
 
 func Test_HTTPBox_CaseInsensitive(t *testing.T) {
