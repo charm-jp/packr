@@ -37,8 +37,8 @@ func Test_Box_WalkPrefix_Physical(t *testing.T) {
 		return nil
 	})
 	r.NoError(err)
-	r.Equal(2, len(files))
-	mustHave := osPaths("foo/a.txt", "foo/bar/b.txt")
+	r.Equal(3, len(files))
+	mustHave := osPaths("foo/a.txt", "foo/bar/b.txt", "foo/bar/deep/index.html")
 	r.Equal(mustHave, files)
 }
 
